@@ -97,9 +97,16 @@ document.getElementById('formServico').addEventListener('submit',function(e){
   const valor = parseFloat(document.getElementById('valor').value);
   const desconto = parseFloat(document.getElementById('desconto').value);
   const pedagio = document.getElementById('pedagio').value;
+  
+  const servPlaca = document.getElementById('servPlaca').value.trim();
+  const servModelo = document.getElementById('servModelo').value.trim();
+  const servCor = document.getElementById('servCor').value.trim();
+  const servAno = document.getElementById('servAno').value.trim();
+  const servOpcoes = document.getElementById('servOpcoes').value.trim();
+
   if(!motorista||!seguradora||isNaN(valor)||isNaN(desconto)){alert('Preencha todos os campos!');return;}
   const valorFinal = valor-(valor*desconto/100);
-  servicos.push({id:Date.now(),motorista,seguradora,horario,valor,desconto,pedagio,valorFinal});
+  servicos.push({id:Date.now(),motorista,seguradora,horario,valor,desconto,pedagio,valorFinal, servPlaca, servModelo, servCor, servAno, servOpcoes});
   save('servicos',servicos);
   atualizarServicos();
   atualizarDashboard();
@@ -118,6 +125,8 @@ function atualizarServicos(filtro=''){
       <div class="service-info">
         <h4>${s.motorista}</h4>
         <p>${s.seguradora} • ${new Date(s.horario).toLocaleString('pt-BR')}</p>
+        ${s.servPlaca || s.servModelo ? `<p style="font-size:0.85em;color:#888;margin-top:4px;">🚗 ${[s.servPlaca, s.servModelo, s.servCor, s.servAno].filter(Boolean).join(' • ')}</p>` : ''}
+        ${s.servOpcoes ? `<p style="font-size:0.85em;color:#888;margin-top:2px;">➕ ${s.servOpcoes}</p>` : ''}
         <div class="service-actions">
           <button class="btn-edit" onclick="editarServico(${s.id})">✏️ Editar</button>
           <button class="btn-delete" onclick="deletarServico(${s.id})">🗑️ Excluir</button>
@@ -138,6 +147,11 @@ function editarServico(id){
   document.getElementById('valor').value=s.valor;
   document.getElementById('desconto').value=s.desconto;
   document.getElementById('pedagio').value=s.pedagio;
+  document.getElementById('servPlaca').value=s.servPlaca||'';
+  document.getElementById('servModelo').value=s.servModelo||'';
+  document.getElementById('servCor').value=s.servCor||'';
+  document.getElementById('servAno').value=s.servAno||'';
+  document.getElementById('servOpcoes').value=s.servOpcoes||'';
   deletarServico(id);
   switchTab('tabInicio');
   document.getElementById('motorista').focus();
@@ -509,16 +523,23 @@ function gerarPDFServicos(){
   if(!servicos.length){alert('Nenhum serviço para gerar relatório');return;}
   const{jsPDF}=window.jspdf;const doc=new jsPDF();
   let y=pdfHeader(doc,'Relatório de Serviços');
-  const cols=['Motorista','Seguradora','Data/Hora','Valor','Desc.','Pedágio','V. Final'];
-  const rows=servicos.map(s=>[
-    s.motorista,
-    s.seguradora,
-    new Date(s.horario).toLocaleString('pt-BR'),
-    'R$ '+s.valor.toFixed(2),
-    s.desconto+'%',
-    s.pedagio==='sim'?'Sim':'Não',
-    'R$ '+s.valorFinal.toFixed(2)
-  ]);
+  const cols=['Motorista / Veículo','Seguradora','Data/Hora','Valor','Desc.','Ped.','V. Final'];
+  const rows=servicos.map(s=>{
+    let veiculoInfo = [s.servPlaca, s.servModelo, s.servCor, s.servAno].filter(Boolean).join(' ');
+    let motoristaEVeiculo = s.motorista;
+    if (veiculoInfo) motoristaEVeiculo += `\n🚗 ${veiculoInfo}`;
+    if (s.servOpcoes) motoristaEVeiculo += `\n➕ ${s.servOpcoes}`;
+
+    return [
+      motoristaEVeiculo,
+      s.seguradora,
+      new Date(s.horario).toLocaleString('pt-BR'),
+      'R$ '+s.valor.toFixed(2),
+      s.desconto+'%',
+      s.pedagio==='sim'?'Sim':'Não',
+      'R$ '+s.valorFinal.toFixed(2)
+    ];
+  });
   doc.autoTable({
     head:[cols],
     body:rows,
@@ -527,13 +548,13 @@ function gerarPDFServicos(){
     headStyles:{fillColor:[40, 40, 40],textColor:[255,255,255],fontStyle:'bold'},
     alternateRowStyles:{fillColor:[240,245,255]},
     columnStyles:{
-      0:{cellWidth:25},
+      0:{cellWidth:45},
       1:{cellWidth:25},
-      2:{cellWidth:38},
-      3:{cellWidth:22,halign:'right'},
+      2:{cellWidth:30},
+      3:{cellWidth:20,halign:'right'},
       4:{cellWidth:15,halign:'center'},
-      5:{cellWidth:18,halign:'center'},
-      6:{cellWidth:27,halign:'right',fontStyle:'bold'}
+      5:{cellWidth:15,halign:'center'},
+      6:{cellWidth:25,halign:'right',fontStyle:'bold'}
     }
   });
   const total=servicos.reduce((a,s)=>a+s.valorFinal,0);
@@ -636,8 +657,14 @@ function gerarPDFCompleto(){
   // Services
   if(servicos.length){
     doc.setFontSize(12);doc.setTextColor(0,80,160);doc.text('Serviços',14,y);y+=4;
-    const rows=servicos.map(s=>[s.motorista,s.seguradora,new Date(s.horario).toLocaleString('pt-BR'),'R$ '+s.valorFinal.toFixed(2)]);
-    doc.autoTable({head:[['Motorista','Seguradora','Data','Valor Final']],body:rows,startY:y,styles:{fontSize:7},headStyles:{fillColor:[40, 40, 40]}});
+    const rows=servicos.map(s=>{
+      let veiculoInfo = [s.servPlaca, s.servModelo, s.servCor, s.servAno].filter(Boolean).join(' ');
+      let motoristaEVeiculo = s.motorista;
+      if (veiculoInfo) motoristaEVeiculo += `\n🚗 ${veiculoInfo}`;
+      if (s.servOpcoes) motoristaEVeiculo += `\n➕ ${s.servOpcoes}`;
+      return [motoristaEVeiculo,s.seguradora,new Date(s.horario).toLocaleString('pt-BR'),'R$ '+s.valorFinal.toFixed(2)];
+    });
+    doc.autoTable({head:[['Motorista / Veículo','Seguradora','Data','Valor Final']],body:rows,startY:y,styles:{fontSize:7},headStyles:{fillColor:[40, 40, 40]}});
     y=doc.lastAutoTable.finalY+8;
   }
   // Latest checklist
