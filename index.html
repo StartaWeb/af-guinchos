@@ -2,10 +2,10 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Le Guinchos - App do Motorista</title>
-  <meta name="description" content="Le Guincho - Aplicativo para motoristas de guincho. Checklist, fotos, despesas e relatórios.">
+  <title>AF Guinchos - App do Motorista</title>
+  <meta name="description" content="AF Guinchos - Aplicativo para motoristas de guincho. Checklist, fotos, despesas e relatórios.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#001a33">
+  <meta name="theme-color" content="#1a1a1a">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
@@ -17,8 +17,11 @@
 
 <!-- Header -->
 <header id="appHeader">
-  <h1 class="logo-text">Le Guinchos</h1>
-  <p class="header-subtitle">App do Motorista</p>
+  <button id="menuToggle" class="menu-btn" onclick="toggleMenu()">☰</button>
+  <div class="header-titles">
+    <h1 class="logo-text">AF Guinchos</h1>
+    <p class="header-subtitle">App do Motorista</p>
+  </div>
 </header>
 
 <!-- ========== TAB: INÍCIO ========== -->
@@ -256,15 +259,23 @@
   </div>
 </div>
 
-<!-- Bottom Navigation -->
-<nav id="bottomNav">
-  <button class="nav-btn active" data-tab="tabInicio"><span class="nav-icon">🏠</span><span class="nav-label">Início</span></button>
-  <button class="nav-btn" data-tab="tabChecklist"><span class="nav-icon">📋</span><span class="nav-label">Checklist</span></button>
-  <button class="nav-btn" data-tab="tabFotos"><span class="nav-icon">📸</span><span class="nav-label">Fotos</span></button>
-  <button class="nav-btn" data-tab="tabDespesas"><span class="nav-icon">💰</span><span class="nav-label">Despesas</span></button>
-  <button class="nav-btn" data-tab="tabGasolina"><span class="nav-icon">⛽</span><span class="nav-label">KM/Gas</span></button>
-  <button class="nav-btn" data-tab="tabRelatorios"><span class="nav-icon">📄</span><span class="nav-label">Relatórios</span></button>
-</nav>
+<!-- Sidebar Navigation -->
+<aside id="sideNav" class="sidebar">
+  <div class="sidebar-header">
+    <img src="logo-afguinchos.png" alt="AF Guinchos Logo" class="sidebar-logo" onerror="this.src='logo-startweb.png';">
+    <h2>AF Guinchos</h2>
+    <button class="close-menu-btn" onclick="toggleMenu()">&times;</button>
+  </div>
+  <nav class="sidebar-nav">
+    <button class="nav-btn active" data-tab="tabInicio" onclick="fecharMenuMobile()"><span class="nav-icon">🏠</span><span class="nav-label">Início</span></button>
+    <button class="nav-btn" data-tab="tabChecklist" onclick="fecharMenuMobile()"><span class="nav-icon">📋</span><span class="nav-label">Checklist</span></button>
+    <button class="nav-btn" data-tab="tabFotos" onclick="fecharMenuMobile()"><span class="nav-icon">📸</span><span class="nav-label">Fotos</span></button>
+    <button class="nav-btn" data-tab="tabDespesas" onclick="fecharMenuMobile()"><span class="nav-icon">💰</span><span class="nav-label">Despesas</span></button>
+    <button class="nav-btn" data-tab="tabGasolina" onclick="fecharMenuMobile()"><span class="nav-icon">⛽</span><span class="nav-label">KM/Gas</span></button>
+    <button class="nav-btn" data-tab="tabRelatorios" onclick="fecharMenuMobile()"><span class="nav-icon">📄</span><span class="nav-label">Relatórios</span></button>
+  </nav>
+</aside>
+<div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleMenu()"></div>
 
 <!-- Scripts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>

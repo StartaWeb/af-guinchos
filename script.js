@@ -39,6 +39,21 @@ const EXPENSE_LABELS = {combustivel:'⛽ Combustível',pedagio:'🛤️ Pedágio
 function save(key,data){localStorage.setItem(key,JSON.stringify(data))}
 
 // ========== NAVIGATION ==========
+function toggleMenu() {
+  const sideNav = document.getElementById('sideNav');
+  const overlay = document.getElementById('sidebarOverlay');
+  if(sideNav) sideNav.classList.toggle('open');
+  if(overlay) overlay.classList.toggle('show');
+}
+function fecharMenuMobile() {
+  if (window.innerWidth <= 768) {
+    const sideNav = document.getElementById('sideNav');
+    const overlay = document.getElementById('sidebarOverlay');
+    if(sideNav) sideNav.classList.remove('open');
+    if(overlay) overlay.classList.remove('show');
+  }
+}
+
 function switchTab(tabId){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
@@ -448,24 +463,24 @@ const DEV_INFO = {empresa:'StartWeb',dev:'Roberto Ursine',tel:'(11) 98285-6216'}
 function pdfHeader(doc, titulo){
   // Marca d'água diagonal
   doc.setFontSize(42);
-  doc.setTextColor(220, 230, 245);
+  doc.setTextColor(245, 245, 245);
   doc.setFont('helvetica','bold');
-  doc.text('Le Guincho', 55, 148, {angle: 45});
+  doc.text('AF Guinchos', 55, 148, {angle: 45});
 
-  // Cabeçalho azul - Logo
+  // Cabeçalho - Logo
   doc.setFontSize(20);
-  doc.setTextColor(0, 88, 176);
+  doc.setTextColor(255, 179, 0);
   doc.setFont('helvetica','bold');
-  doc.text('Le Guincho', 14, 16);
+  doc.text('AF Guinchos', 14, 16);
 
   // Subtítulo
   doc.setFontSize(9);
-  doc.setTextColor(100, 120, 150);
+  doc.setTextColor(120, 120, 120);
   doc.setFont('helvetica','normal');
   doc.text('App do Motorista', 14, 23);
 
   // Separador
-  doc.setDrawColor(0, 88, 176);
+  doc.setDrawColor(255, 179, 0);
   doc.setLineWidth(0.5);
   doc.line(14, 26, 196, 26);
 
@@ -509,7 +524,7 @@ function gerarPDFServicos(){
     body:rows,
     startY:y,
     styles:{fontSize:8,cellPadding:3},
-    headStyles:{fillColor:[0,80,160],textColor:[255,255,255],fontStyle:'bold'},
+    headStyles:{fillColor:[40, 40, 40],textColor:[255,255,255],fontStyle:'bold'},
     alternateRowStyles:{fillColor:[240,245,255]},
     columnStyles:{
       0:{cellWidth:25},
@@ -564,7 +579,7 @@ function gerarPDFChecklistData(c){
     const st=item.status==='ok'?'OK':item.status==='avariado'?'AVARIADO':'Não verificado';
     return[p.label,st,item.obs||'—'];
   });
-  doc.autoTable({head:[['Parte','Status','Observação']],body:rows,startY:y,styles:{fontSize:8},headStyles:{fillColor:[0,80,160]},
+  doc.autoTable({head:[['Parte','Status','Observação']],body:rows,startY:y,styles:{fontSize:8},headStyles:{fillColor:[40, 40, 40]},
     didParseCell:function(data){
       if(data.section==='body'&&data.column.index===1){
         if(data.cell.raw==='OK')data.cell.styles.textColor=[0,160,80];
@@ -601,7 +616,7 @@ function gerarPDFDespesas(){
   let y=pdfHeader(doc,'Relatório de Despesas');
   const cols=['Categoria','Data','Descrição','Valor'];
   const rows=despesas.map(d=>[EXPENSE_LABELS[d.tipo]||d.tipo,new Date(d.data+'T12:00:00').toLocaleDateString('pt-BR'),d.descricao||'—','R$ '+d.valor.toFixed(2)]);
-  doc.autoTable({head:[cols],body:rows,startY:y,styles:{fontSize:8},headStyles:{fillColor:[0,80,160]}});
+  doc.autoTable({head:[cols],body:rows,startY:y,styles:{fontSize:8},headStyles:{fillColor:[40, 40, 40]}});
   const total=despesas.reduce((a,d)=>a+d.valor,0);
   const fy=doc.lastAutoTable.finalY+10;
   doc.setFontSize(10);doc.setTextColor(0,0,0);
@@ -622,7 +637,7 @@ function gerarPDFCompleto(){
   if(servicos.length){
     doc.setFontSize(12);doc.setTextColor(0,80,160);doc.text('Serviços',14,y);y+=4;
     const rows=servicos.map(s=>[s.motorista,s.seguradora,new Date(s.horario).toLocaleString('pt-BR'),'R$ '+s.valorFinal.toFixed(2)]);
-    doc.autoTable({head:[['Motorista','Seguradora','Data','Valor Final']],body:rows,startY:y,styles:{fontSize:7},headStyles:{fillColor:[0,80,160]}});
+    doc.autoTable({head:[['Motorista','Seguradora','Data','Valor Final']],body:rows,startY:y,styles:{fontSize:7},headStyles:{fillColor:[40, 40, 40]}});
     y=doc.lastAutoTable.finalY+8;
   }
   // Latest checklist
@@ -633,7 +648,7 @@ function gerarPDFCompleto(){
     doc.setFontSize(8);doc.setTextColor(0,0,0);
     doc.text(`${c.veiculo.placa||'—'} | ${c.veiculo.modelo||'—'} | ${new Date(c.data).toLocaleString('pt-BR')}`,14,y);y+=5;
     const rows=CHECKLIST_PARTS.map(p=>{const it=c.itens[p.id]||{status:'none'};return[p.label,it.status==='ok'?'OK':it.status==='avariado'?'AVARIADO':'—'];});
-    doc.autoTable({head:[['Parte','Status']],body:rows,startY:y,styles:{fontSize:7},headStyles:{fillColor:[0,80,160]},
+    doc.autoTable({head:[['Parte','Status']],body:rows,startY:y,styles:{fontSize:7},headStyles:{fillColor:[40, 40, 40]},
       didParseCell:function(data){if(data.section==='body'&&data.column.index===1){if(data.cell.raw==='OK')data.cell.styles.textColor=[0,160,80];if(data.cell.raw==='AVARIADO')data.cell.styles.textColor=[220,50,50];}}
     });
     y=doc.lastAutoTable.finalY+8;
@@ -652,7 +667,7 @@ function gerarPDFCompleto(){
     if(y>200){doc.addPage();y=20;}
     doc.setFontSize(12);doc.setTextColor(0,80,160);doc.text('Despesas',14,y);y+=4;
     const rows=despesas.map(d=>[EXPENSE_LABELS[d.tipo]||d.tipo,new Date(d.data+'T12:00:00').toLocaleDateString('pt-BR'),'R$ '+d.valor.toFixed(2)]);
-    doc.autoTable({head:[['Categoria','Data','Valor']],body:rows,startY:y,styles:{fontSize:7},headStyles:{fillColor:[0,80,160]}});
+    doc.autoTable({head:[['Categoria','Data','Valor']],body:rows,startY:y,styles:{fontSize:7},headStyles:{fillColor:[40, 40, 40]}});
   }
   pdfFooter(doc);doc.save('Relatorio_Completo_LeGuincho.pdf');
 }
@@ -703,7 +718,7 @@ function gerarPDFGasolina(){
     body:rows,
     startY:y,
     styles:{fontSize:7.5,cellPadding:3},
-    headStyles:{fillColor:[0,88,176],textColor:[255,255,255],fontStyle:'bold'},
+    headStyles:{fillColor:[40, 40, 40],textColor:[255,255,255],fontStyle:'bold'},
     alternateRowStyles:{fillColor:[240,248,255]},
     columnStyles:{
       0:{cellWidth:28},
