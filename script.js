@@ -527,8 +527,8 @@ function gerarPDFServicos(){
   const rows=servicos.map(s=>{
     let veiculoInfo = [s.servPlaca, s.servModelo, s.servCor, s.servAno].filter(Boolean).join(' ');
     let motoristaEVeiculo = s.motorista;
-    if (veiculoInfo) motoristaEVeiculo += `\n🚗 ${veiculoInfo}`;
-    if (s.servOpcoes) motoristaEVeiculo += `\n➕ ${s.servOpcoes}`;
+    if (veiculoInfo) motoristaEVeiculo += `\nVeículo: ${veiculoInfo}`;
+    if (s.servOpcoes) motoristaEVeiculo += `\nOpções: ${s.servOpcoes}`;
 
     return [
       motoristaEVeiculo,
@@ -660,8 +660,8 @@ function gerarPDFCompleto(){
     const rows=servicos.map(s=>{
       let veiculoInfo = [s.servPlaca, s.servModelo, s.servCor, s.servAno].filter(Boolean).join(' ');
       let motoristaEVeiculo = s.motorista;
-      if (veiculoInfo) motoristaEVeiculo += `\n🚗 ${veiculoInfo}`;
-      if (s.servOpcoes) motoristaEVeiculo += `\n➕ ${s.servOpcoes}`;
+      if (veiculoInfo) motoristaEVeiculo += `\nVeículo: ${veiculoInfo}`;
+      if (s.servOpcoes) motoristaEVeiculo += `\nOpções: ${s.servOpcoes}`;
       return [motoristaEVeiculo,s.seguradora,new Date(s.horario).toLocaleString('pt-BR'),'R$ '+s.valorFinal.toFixed(2)];
     });
     doc.autoTable({head:[['Motorista / Veículo','Seguradora','Data','Valor Final']],body:rows,startY:y,styles:{fontSize:7},headStyles:{fillColor:[40, 40, 40]}});

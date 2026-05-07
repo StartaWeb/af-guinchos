@@ -1,4 +1,4 @@
-const CACHE_NAME = 'afguinchos-v3';
+const CACHE_NAME = 'afguinchos-v4';
 const urlsToCache = [
   './',
   './index.html',
